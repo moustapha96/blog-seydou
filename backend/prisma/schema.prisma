@@ -1,0 +1,404 @@
+// ============================================================
+//  SCHEMA PRISMA - BLOG UNIVERSITAIRE UCAD
+//  Base de donnees : PostgreSQL
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ------------------------------------------------------------
+//  UTILISATEURS / AUTHENTIFICATION
+// ------------------------------------------------------------
+enum Role {
+  ADMIN
+  EDITOR
+  READER
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(READER)
+  avatar    String?
+  bio       String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  articles Article[]
+  comments Comment[]
+  news     News[]
+
+  @@map("users")
+}
+
+// ------------------------------------------------------------
+//  ARTICLES
+// ------------------------------------------------------------
+enum PostStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  color       String    @default("#1e40af")
+  createdAt   DateTime  @default(now())
+  articles    Article[]
+
+  @@map("categories")
+}
+
+model Tag {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  slug     String    @unique
+  articles Article[]
+
+  @@map("tags")
+}
+
+model Article {
+  id            String     @id @default(uuid())
+  title         String
+  slug          String     @unique
+  excerpt       String?
+  content       String     // HTML riche (sanitize cote serveur)
+  coverImage    String?
+  status        PostStatus @default(DRAFT)
+  featured      Boolean    @default(false)
+  views         Int        @default(0)
+  readingTime   Int        @default(0) // minutes
+  metaTitle     String?
+  metaDesc      String?
+  attachments   String[]   @default([]) // chemins PDF / fichiers
+  publishedAt   DateTime?
+  scheduledAt   DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  authorId   String
+  author     User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  tags       Tag[]
+  comments   Comment[]
+
+  @@index([status, publishedAt])
+  @@index([slug])
+  @@map("articles")
+}
+
+// ------------------------------------------------------------
+//  COMMENTAIRES (avec moderation + reponses imbriquees)
+// ------------------------------------------------------------
+model Comment {
+  id          String   @id @default(uuid())
+  authorName  String
+  authorEmail String?
+  content     String
+  approved    Boolean  @default(false)
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  articleId String
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  // Reponse de l'admin / fil de discussion
+  parentId String?
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("CommentReplies")
+
+  // Lien optionnel vers un utilisateur connecte (ex: admin)
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([articleId, approved])
+  @@map("comments")
+}
+
+// ------------------------------------------------------------
+//  LIVRES & PUBLICATIONS
+// ------------------------------------------------------------
+model Book {
+  id           String   @id @default(uuid())
+  title        String
+  slug         String   @unique
+  author       String
+  publisher    String?
+  isbn         String?
+  year         Int?
+  cover        String?
+  description  String?
+  category     String?
+  pdfFile      String?  // chapitre / livre gratuit en telechargement
+  purchaseUrl  String?  // lien Amazon / editeur
+  citationApa  String?
+  citationMla  String?
+  featured     Boolean  @default(false)
+  downloads    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("books")
+}
+
+// ------------------------------------------------------------
+//  PUBLICATIONS SCIENTIFIQUES (articles, chapitres, communications...)
+// ------------------------------------------------------------
+model PublicationCategory {
+  id           String        @id @default(uuid())
+  name         String        @unique
+  slug         String        @unique
+  description  String?
+  color        String        @default("#7c3aed")
+  sortOrder    Int           @default(0)
+  createdAt    DateTime      @default(now())
+  publications Publication[]
+
+  @@map("publication_categories")
+}
+
+model Publication {
+  id          String            @id @default(uuid())
+  title       String
+  slug        String            @unique
+  authors     String            // ex: "Seydou Diop, Marie Fall"
+  journal     String?           // revue, actes de colloque, ouvrage collectif
+  publisher   String?
+  year        Int?
+  volume      String?
+  pages       String?
+  doi         String?
+  link        String?
+  abstract    String?
+  citationApa String?
+  citationMla String?
+  pdfFile     String?
+  featured    Boolean           @default(false)
+  status      PostStatus        @default(PUBLISHED)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  categoryId String?
+  category   PublicationCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([status, year])
+  @@index([slug])
+  @@map("publications")
+}
+
+// ------------------------------------------------------------
+//  ENCADREMENTS (theses, memoires, stages, projets...)
+// ------------------------------------------------------------
+enum SupervisionStatus {
+  IN_PROGRESS
+  DEFENDED
+  ABANDONED
+}
+
+model SupervisionCategory {
+  id           String        @id @default(uuid())
+  name         String        @unique
+  slug         String        @unique
+  description  String?
+  color        String        @default("#0891b2")
+  sortOrder    Int           @default(0)
+  createdAt    DateTime      @default(now())
+  supervisions Supervision[]
+
+  @@map("supervision_categories")
+}
+
+model Supervision {
+  id            String             @id @default(uuid())
+  title         String             // sujet de these / memoire / projet
+  studentName   String
+  studentEmail  String?
+  institution   String?            @default("Universite Cheikh Anta Diop (UCAD)")
+  coSupervisor  String?            // co-encadrant
+  year          Int?               // annee de soutenance ou fin prevue
+  startYear     Int?
+  endYear       Int?
+  status        SupervisionStatus  @default(IN_PROGRESS)
+  description   String?
+  link          String?
+  pdfFile       String?
+  featured      Boolean            @default(false)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  categoryId String?
+  category   SupervisionCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([status, year])
+  @@map("supervisions")
+}
+
+// ------------------------------------------------------------
+//  ACTUALITES & EVENEMENTS
+// ------------------------------------------------------------
+model News {
+  id          String     @id @default(uuid())
+  title       String
+  slug        String     @unique
+  content     String
+  excerpt     String?
+  image       String?
+  status      PostStatus @default(PUBLISHED)
+  publishedAt DateTime   @default(now())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  authorId String?
+  author   User?   @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@map("news")
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  location    String?
+  startDate   DateTime
+  endDate     DateTime?
+  link        String?
+  image       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([startDate])
+  @@map("events")
+}
+
+// ------------------------------------------------------------
+//  NEWSLETTER
+// ------------------------------------------------------------
+model Newsletter {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  confirmed    Boolean  @default(true)
+  unsubscribed Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  @@map("newsletter")
+}
+
+// ------------------------------------------------------------
+//  MESSAGES DE CONTACT
+// ------------------------------------------------------------
+model ContactMessage {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  subject   String?
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("contact_messages")
+}
+
+// ------------------------------------------------------------
+//  PORTFOLIO DU PROFESSEUR (singleton)
+// ------------------------------------------------------------
+model Profile {
+  id            String   @id @default(uuid())
+  fullName      String
+  title         String?  // ex: Professeur titulaire
+  institution   String   @default("Universite Cheikh Anta Diop (UCAD)")
+  // Identite du site (logo + nom affiche dans le header/footer)
+  siteName      String?  // nom affiche a cote du logo (defaut : fullName)
+  siteTagline   String?  // sous-titre du logo (defaut : "Blog UCAD")
+  logo          String?  // image de logo televersee (sinon icone par defaut)
+  themeColor    String?  // couleur principale : cle de palette (indigo, blue, emerald...) ou hex #rrggbb
+  bio           String?
+  photo         String?
+  email         String?
+  phone         String?
+  address       String?
+  // JSON stocke en texte pour flexibilite (CV, reseaux, etc.)
+  education     Json?    // [{degree, school, year}]
+  experience    Json?    // [{role, place, period, description}]
+  skills        Json?    // ["Linguistique", ...]
+  research      Json?    // [{title, description, partners, funding}]
+  publications  Json?    // [{title, journal, year, link}]
+  socialLinks   Json?    // {linkedin, twitter, researchgate, googleScholar}
+  awards        Json?    // [{title, year}]
+  updatedAt     DateTime @updatedAt
+  createdAt     DateTime @default(now())
+
+  @@map("profile")
+}
+
+// ------------------------------------------------------------
+//  JOURNAL D'AUDIT (traçabilité des requêtes / actions)
+// ------------------------------------------------------------
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?  // snapshot (pas de relation : conserve l'historique meme apres suppression)
+  userName   String   @default("Anonyme")
+  userRole   String?
+  action     String   // libelle lisible, ex: "Creation article"
+  method     String   // GET, POST, PUT, PATCH, DELETE
+  path       String
+  statusCode Int?
+  ipAddress  String?
+  userAgent  String?
+  meta       Json?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([userId])
+  @@map("audit_logs")
+}
+
+// ------------------------------------------------------------
+//  BANNIERES DE PAGE (images / carrousel configurables)
+// ------------------------------------------------------------
+model Banner {
+  id        String   @id @default(uuid())
+  page      String   @unique // cle de page : articles, livres, actualites, evenements, a-propos, contact, recherche, home
+  title     String?
+  subtitle  String?
+  images    String[] @default([]) // [legacy] 1 image = statique, 2+ = carrousel (fallback si slides vide)
+  interval  Int      @default(5000) // duree d'affichage par defaut (ms)
+  slides    Json     @default("[]") // slides riches : [{ type, src, poster, title, subtitle, ctaText, ctaLink, align, overlay, duration }]
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@map("banners")
+}
+
+// Annonces affichees dans un bandeau global en haut du site
+model Announcement {
+  id          String    @id @default(uuid())
+  message     String
+  link        String? // URL interne (/evenements) ou externe (https://...)
+  linkLabel   String? // libelle du bouton/lien (ex: "En savoir plus")
+  type        String    @default("info") // info | success | warning | event
+  active      Boolean   @default(true)
+  dismissible Boolean   @default(true) // l'utilisateur peut-il fermer le bandeau ?
+  position    Int       @default(0) // ordre d'affichage (rotation si plusieurs annonces actives)
+  startsAt    DateTime? // affichage a partir de (optionnel)
+  endsAt      DateTime? // masque apres (optionnel)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("announcements")
+}

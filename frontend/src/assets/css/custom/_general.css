@@ -1,0 +1,109 @@
+/*********************************/
+/*             General            */
+/*===============================*/
+.container {
+    @apply w-full mx-auto px-3;
+}
+p {
+    @apply leading-relaxed;
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+    @apply leading-normal;
+}
+
+::selection {
+    @apply bg-indigo-600/90 text-white;
+}
+
+.css-13cymwt-control{
+    border-color: transparent !important;
+    border-style: none !important;
+    --tw-bg-opacity: 1;
+    background-color: rgb(249 250 251 / var(--tw-bg-opacity)) !important;
+  }
+  :is(.dark .css-13cymwt-control){
+    --tw-bg-opacity: 1;
+    background-color: rgb(30 41 59 / var(--tw-bg-opacity)) !important;
+  }
+  
+  .css-t3ipsp-control {
+    border-color: transparent !important;
+    --tw-bg-opacity: 1;
+    background-color: rgb(249 250 251 / var(--tw-bg-opacity)) !important;
+  }
+  
+  :is(.dark .css-t3ipsp-control){
+    --tw-bg-opacity: 1;
+    background-color: rgb(30 41 59 / var(--tw-bg-opacity)) !important;
+  }
+  
+  .css-1u9des2-indicatorSeparator{
+    display: none !important;
+  }
+  
+  .css-1fdsijx-ValueContainer{
+    padding: 0px !important;
+  }
+  
+  .css-qbdosj-Input {
+    margin: 0 !important;
+    padding: 0px !important;
+  }
+  
+  .css-13cymwt-control:hover,
+  .css-13cymwt-control:focus,
+  .css-t3ipsp-control:hover,
+  .css-t3ipsp-control:focus{
+    border-color: transparent !important;
+    border-style: none !important;
+    --tw-shadow: 0 0 #0000 !important;
+    --tw-shadow-colored: 0 0 #0000 !important;
+    -webkit-box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important;
+            box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important;
+  }
+  
+  
+  .css-1dimb5e-singleValue{
+    --tw-text-opacity: 1;
+    color: rgb(22 28 45 / var(--tw-text-opacity)) !important;
+  }
+  
+  :is(.dark .css-1dimb5e-singleValue){
+    --tw-text-opacity: 1;
+    color: rgb(255 255 255 / var(--tw-text-opacity)) !important;
+  }
+  
+  .css-1nmdiq5-menu{
+    z-index: 999;
+    border-radius: 5px;
+    border-style: none !important;
+    --tw-bg-opacity: 1;
+    background-color: rgb(255 255 255 / var(--tw-bg-opacity)) !important;
+    --tw-shadow: 0 0 3px rgb(60 72 88 / 0.15);
+    --tw-shadow-colored: 0 0 3px var(--tw-shadow-color);
+    -webkit-box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+            box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+    --tw-text-opacity: 1;
+    color: rgb(22 28 45 / var(--tw-text-opacity)) !important;
+  }
+  .css-1nmdiq5-menu .css-1n6sfyn-MenuList::-webkit-scrollbar {
+    display: none;
+  }
+  
+  :is(.dark .css-1nmdiq5-menu){
+    --tw-bg-opacity: 1;
+    background-color: rgb(15 23 42 / var(--tw-bg-opacity)) !important;
+    --tw-shadow-color: #1f2937;
+    --tw-shadow: var(--tw-shadow-colored);
+    --tw-text-opacity: 1;
+    color: rgb(255 255 255 / var(--tw-text-opacity)) !important;
+  }
+  
+  .css-13cymwt-control:after,
+  .css-13cymwt-control:before{
+    --tw-shadow: 0 0 #0000;
+    --tw-shadow-colored: 0 0 #0000;
+    -webkit-box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important;
+            box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important;
+  }
