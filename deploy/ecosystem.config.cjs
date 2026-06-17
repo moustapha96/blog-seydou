@@ -16,7 +16,7 @@ module.exports = {
   apps: [
     {
       name: 'blog-seydou-api',
-      cwd: '/var/www/blog-seydou/backend',
+      cwd: '/var/www/blog/backend',
       script: 'src/server.js',
       interpreter: 'node',
       exec_mode: 'fork',
@@ -29,15 +29,15 @@ module.exports = {
       time: true,
       merge_logs: true,
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
-      error_file: '/var/log/pm2/blog-seydou-api-error.log',
-      out_file: '/var/log/pm2/blog-seydou-api-out.log',
+      error_file: '/var/log/pm2/blog-api-error.log',
+      out_file: '/var/log/pm2/blog-api-out.log',
       env: {
         NODE_ENV: 'development',
-        PORT: 5000,
+        PORT: 6000,
       },
       env_production: {
         NODE_ENV: 'production',
-        PORT: 5000,
+        PORT: 6000,
         API_URL: 'https://backend-blog.tech-xuma.com',
         CLIENT_URL: 'https://blog.tech-xuma.com',
       },
