@@ -18,15 +18,32 @@ import { notFoundHandler, errorHandler } from './middleware/error.js';
 
 const app = express();
 
+const allowedOrigins = new Set([
+  env.clientUrl,
+  ...env.corsOrigins,
+  'https://blog.tech-xuma.com',
+  'https://www.blog.tech-xuma.com',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+]);
+
+const corsOptions = {
+  origin(origin, callback) {
+    // Autorise les clients sans Origin (curl, santé, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.has(origin)) return callback(null, true);
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
 // Securite & perfs
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(compression());
-app.use(
-  cors({
-    origin: env.isProd ? env.clientUrl : true,
-    credentials: true,
-  })
-);
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

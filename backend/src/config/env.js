@@ -6,6 +6,10 @@ const env = {
   port: parseInt(process.env.PORT || '5000', 10),
   apiUrl: process.env.API_URL || 'http://localhost:5000',
   clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
+  corsOrigins: (process.env.CORS_ORIGINS || '')
+    .split(',')
+    .map((v) => v.trim())
+    .filter(Boolean),
   databaseUrl: process.env.DATABASE_URL,
   jwt: {
     secret: process.env.JWT_SECRET || 'dev_secret',
