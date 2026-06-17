@@ -21,6 +21,13 @@ function describe(method, path) {
     if (seg[1] === 'login') return 'Connexion';
     if (seg[1] === 'register') return 'Inscription';
     if (seg[1] === 'profile') return 'Mise a jour du profil';
+    if (seg[1] === 'refresh') return 'Rafraichissement de session';
+    if (seg[1] === 'logout') return 'Deconnexion';
+    if (seg[1] === 'logout-all') return 'Fermeture de toutes les sessions';
+    if (seg[1] === 'forgot-password') return 'Demande de reinitialisation de mot de passe';
+    if (seg[1] === 'reset-password') return 'Reinitialisation de mot de passe';
+    if (seg[1] === 'verify-email') return 'Verification d\'email';
+    if (seg[1] === 'resend-verification') return 'Renvoi de verification d\'email';
   }
   if (resource === 'articles' && seg[2] === 'archive') return 'Archivage article';
   if (resource === 'comments' && seg[2] === 'approve') return 'Approbation commentaire';
@@ -40,6 +47,8 @@ function describe(method, path) {
 export function auditLogger(req, res, next) {
   const auditable = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method);
   if (!auditable) return next();
+  // Le rafraichissement de session est trop frequent pour etre journalise
+  if (req.path === '/auth/refresh') return next();
 
   res.on('finish', () => {
     // N'enregistre pas la consultation/purge du journal lui-meme via GET (deja filtre)

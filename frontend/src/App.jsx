@@ -25,6 +25,9 @@ import { Privacy, Legal, NotFound } from './pages/public/StaticPage';
 
 // Pages admin
 import Login from './pages/admin/Login';
+import ForgotPassword from './pages/admin/ForgotPassword';
+import ResetPassword from './pages/auth/ResetPassword';
+import VerifyEmail from './pages/auth/VerifyEmail';
 import Dashboard from './pages/admin/Dashboard';
 import ManageArticles from './pages/admin/ManageArticles';
 import ManageComments from './pages/admin/ManageComments';
@@ -69,6 +72,9 @@ export default function App() {
 
       {/* Authentification admin */}
       <Route path="/admin/login" element={<Login />} />
+      <Route path="/admin/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/verify-email" element={<VerifyEmail />} />
 
       {/* Espace admin protege */}
       <Route

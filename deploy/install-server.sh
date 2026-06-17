@@ -2,18 +2,20 @@
 # Script d'installation sur Ubuntu/Debian — a adapter puis executer en root ou avec sudo
 set -euo pipefail
 
-APP_DIR="${APP_DIR:-/var/www/blog}"
+APP_DIR="${APP_DIR:-/var/www/blog-seydou}"
 DOMAIN_FRONT="${DOMAIN_FRONT:-blog.tech-xuma.com}"
 DOMAIN_API="${DOMAIN_API:-backend-blog.tech-xuma.com}"
 
 echo "==> Creation des repertoires"
 mkdir -p "$APP_DIR" /var/log/pm2 /var/www/certbot
+mkdir -p /etc/nginx/snippets
 
+echo "==> Copie des snippets Nginx"
+cp deploy/nginx/snippets/*.conf /etc/nginx/snippets/
 
 echo "==> Activation des sites Nginx"
 cp deploy/nginx/blog.tech-xuma.com.conf /etc/nginx/sites-available/
 cp deploy/nginx/backend-blog.tech-xuma.com.conf /etc/nginx/sites-available/
-
 ln -sf /etc/nginx/sites-available/blog.tech-xuma.com.conf /etc/nginx/sites-enabled/
 ln -sf /etc/nginx/sites-available/backend-blog.tech-xuma.com.conf /etc/nginx/sites-enabled/
 

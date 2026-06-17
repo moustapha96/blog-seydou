@@ -4,6 +4,13 @@ import client from './client.js';
 export const authApi = {
   login: (data) => client.post('/auth/login', data).then((r) => r.data),
   register: (data) => client.post('/auth/register', data).then((r) => r.data),
+  refresh: () => client.post('/auth/refresh').then((r) => r.data),
+  logout: () => client.post('/auth/logout').then((r) => r.data),
+  logoutAll: () => client.post('/auth/logout-all').then((r) => r.data),
+  forgotPassword: (email) => client.post('/auth/forgot-password', { email }).then((r) => r.data),
+  resetPassword: (data) => client.post('/auth/reset-password', data).then((r) => r.data),
+  verifyEmail: (token) => client.post('/auth/verify-email', { token }).then((r) => r.data),
+  resendVerification: (email) => client.post('/auth/resend-verification', { email }).then((r) => r.data),
   profile: () => client.get('/auth/profile').then((r) => r.data),
   updateProfile: (data) => client.put('/auth/profile', data).then((r) => r.data),
 };

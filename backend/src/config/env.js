@@ -9,7 +9,19 @@ const env = {
   databaseUrl: process.env.DATABASE_URL,
   jwt: {
     secret: process.env.JWT_SECRET || 'dev_secret',
+    // Conserve pour retro-compat ; l'access token utilise accessExpiresIn
     expiresIn: process.env.JWT_EXPIRES_IN || '24h',
+    accessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m',
+    refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '30d',
+  },
+  security: {
+    maxFailedLogins: parseInt(process.env.AUTH_MAX_FAILED_LOGINS || '5', 10),
+    lockMinutes: parseInt(process.env.AUTH_LOCK_MINUTES || '15', 10),
+    resetTokenTtlMin: parseInt(process.env.AUTH_RESET_TTL_MIN || '30', 10),
+    verifyTokenTtlHours: parseInt(process.env.AUTH_VERIFY_TTL_HOURS || '48', 10),
+  },
+  cookie: {
+    name: process.env.REFRESH_COOKIE_NAME || 'ucad_refresh',
   },
   upload: {
     dir: process.env.UPLOAD_DIR || 'uploads',

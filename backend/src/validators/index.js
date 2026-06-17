@@ -1,14 +1,34 @@
 import { body } from 'express-validator';
 
+// Regle de mot de passe robuste partagee : 8+ caracteres, au moins une lettre et un chiffre.
+const strongPassword = (field = 'password') =>
+  body(field)
+    .isLength({ min: 8 }).withMessage('Mot de passe : 8 caracteres minimum')
+    .matches(/[A-Za-z]/).withMessage('Le mot de passe doit contenir au moins une lettre')
+    .matches(/\d/).withMessage('Le mot de passe doit contenir au moins un chiffre');
+
 export const registerRules = [
   body('name').trim().notEmpty().withMessage('Le nom est requis').isLength({ max: 100 }),
   body('email').isEmail().withMessage('Email invalide').normalizeEmail(),
-  body('password').isLength({ min: 6 }).withMessage('Mot de passe : 6 caracteres minimum'),
+  strongPassword(),
 ];
 
 export const loginRules = [
   body('email').isEmail().withMessage('Email invalide').normalizeEmail(),
   body('password').notEmpty().withMessage('Mot de passe requis'),
+];
+
+export const forgotPasswordRules = [
+  body('email').isEmail().withMessage('Email invalide').normalizeEmail(),
+];
+
+export const resetPasswordRules = [
+  body('token').notEmpty().withMessage('Jeton requis'),
+  strongPassword(),
+];
+
+export const resendVerificationRules = [
+  body('email').isEmail().withMessage('Email invalide').normalizeEmail(),
 ];
 
 export const articleRules = [
@@ -59,13 +79,16 @@ export const contactRules = [
 export const createUserRules = [
   body('name').trim().notEmpty().withMessage('Le nom est requis').isLength({ max: 100 }),
   body('email').isEmail().withMessage('Email invalide').normalizeEmail(),
-  body('password').isLength({ min: 6 }).withMessage('Mot de passe : 6 caracteres minimum'),
+  strongPassword(),
   body('role').optional().isIn(['ADMIN', 'EDITOR', 'READER']).withMessage('Role invalide'),
 ];
 
 export const updateUserRules = [
   body('email').optional().isEmail().withMessage('Email invalide').normalizeEmail(),
-  body('password').optional({ checkFalsy: true }).isLength({ min: 6 }).withMessage('Mot de passe : 6 caracteres minimum'),
+  body('password').optional({ checkFalsy: true })
+    .isLength({ min: 8 }).withMessage('Mot de passe : 8 caracteres minimum')
+    .matches(/[A-Za-z]/).withMessage('Le mot de passe doit contenir au moins une lettre')
+    .matches(/\d/).withMessage('Le mot de passe doit contenir au moins un chiffre'),
   body('role').optional().isIn(['ADMIN', 'EDITOR', 'READER']).withMessage('Role invalide'),
 ];
 

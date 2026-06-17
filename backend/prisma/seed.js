@@ -13,12 +13,13 @@ async function main() {
   const password = await bcrypt.hash('Admin@2026', 12);
   const admin = await prisma.user.upsert({
     where: { email: adminEmail },
-    update: {},
+    update: { emailVerified: true },
     create: {
       name: 'Pr. Seydou Diop',
       email: adminEmail,
       password,
       role: 'ADMIN',
+      emailVerified: true,
       bio: "Professeur titulaire a l'Universite Cheikh Anta Diop de Dakar (UCAD). Chercheur en sciences humaines et sociales.",
     },
   });

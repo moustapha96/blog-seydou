@@ -30,6 +30,13 @@ model User {
   avatar    String?
   bio       String?
   isActive  Boolean  @default(true)
+
+  // Securite / cycle de vie du compte
+  emailVerified       Boolean   @default(false)
+  lastLoginAt         DateTime?
+  failedLoginAttempts Int       @default(0)
+  lockedUntil         DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -37,7 +44,47 @@ model User {
   comments Comment[]
   news     News[]
 
+  refreshTokens      RefreshToken[]
+  verificationTokens VerificationToken[]
+
   @@map("users")
+}
+
+// Jetons de rafraichissement (sessions) - le token en clair n'est JAMAIS stocke,
+// seul son hash SHA-256 l'est. Permet rotation et revocation.
+model RefreshToken {
+  id        String    @id @default(uuid())
+  tokenHash String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userAgent String?
+  ipAddress String?
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+enum TokenType {
+  RESET_PASSWORD
+  VERIFY_EMAIL
+}
+
+// Jetons a usage unique : reinitialisation de mot de passe & verification d'email.
+model VerificationToken {
+  id        String    @id @default(uuid())
+  tokenHash String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      TokenType
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, type])
+  @@map("verification_tokens")
 }
 
 // ------------------------------------------------------------
